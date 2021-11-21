@@ -1,10 +1,7 @@
-/** @jsxImportSource @emotion/react */
-
-import "twin.macro";
+import tw from "twin.macro";
 import { useState, useEffect } from "react";
-import { Editor } from "./components";
-import { TopPane, BottomPane } from "./app.style";
-import useLocalStorage from "./customHooks/useLocalStorage";
+import { Editor } from "../components";
+import useLocalStorage from "../customHooks/useLocalStorage";
 
 function App() {
   const [html, setHtml] = useLocalStorage("html", "");
@@ -37,7 +34,7 @@ function App() {
     return () => clearTimeout(timeout);
   }, [html, css, js]);
   return (
-    <div tw="flex flex-col items-center w-full h-screen p-4">
+    <Wrapper>
       <TopPane>
         <Editor title="HTML" value={html} language="xml" onChange={setHtml} />
         <Editor title="CSS" value={css} language="css" onChange={setCss} />
@@ -52,7 +49,25 @@ function App() {
           tw="w-full h-full bg-gray-100"
         ></iframe>
       </BottomPane>
-    </div>
+    </Wrapper>
   );
 }
 export default App;
+
+export const TopPane = tw.div`
+flex flex-row
+items-center w-full  height[350px]
+gap-4 background[#060606]
+pl-4 pr-4
+flex-basis[0]
+flex-grow
+flex-shrink-0
+`;
+export const BottomPane = tw.div`
+ w-full mt-4 flex-grow
+ height[calc(100vh - 366px)]
+`;
+
+export const Wrapper = tw.div`
+flex flex-col items-center w-full height[calc(100vh - 64px)] flex-grow
+`;
