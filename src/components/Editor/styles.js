@@ -2,6 +2,7 @@ import styled from "styled-components";
 export const Editor = styled.div`
   background: hsl(228, 7%, 12%);
   border: 1px solid #34363e;
+  border-top: none;
   height: 100%;
   :hover {
     cursor: text;

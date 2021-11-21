@@ -1,3 +1,4 @@
 import Editor from "./Editor";
 import Header from "./Header";
-export { Editor, Header };
+import Footer from "./Footer";
+export { Editor, Header, Footer };
