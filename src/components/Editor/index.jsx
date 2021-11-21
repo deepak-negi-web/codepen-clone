@@ -17,20 +17,20 @@ const CodeEditor = dynamic(
 );
 
 function EditorComp(props) {
-  const { title, onChange, language, value } = props;
+  const { title, onChange, language, value, onCollapsed } = props;
   const [open, setOpen] = useState(true);
   const onChangeHandler = (_editor, _data, value) => {
     onChange(value);
   };
   return (
-    <Editor css={[open ? tw`w-1/3` : tw`w-0 max-w-0`]}>
+    <Editor>
       <div tw="flex flex-row items-center justify-between height[45px]  background[#060606] pr-2">
         <p tw=" font-openSans font-bold text-white background[hsl(228,7%,12%)] padding[9px 12px] border-top[3px solid #b9b9b9]">
           {title}
         </p>
         <button
           tw="ml-4 p-2 background[hsl(227 12% 30%)] hover:background[hsl(228deg 12% 40%)]"
-          onClick={() => setOpen((prev) => !prev)}
+          onClick={onCollapsed}
         >
           {open ? (
             <FaCompressAlt size="20" color="#fff" />

@@ -1,11 +1,8 @@
 import styled from "styled-components";
-
 export const Editor = styled.div`
   background: hsl(228, 7%, 12%);
   border: 1px solid #34363e;
-  flex-grow: 1;
   height: 100%;
-  flex: 1;
   :hover {
     cursor: text;
   }
