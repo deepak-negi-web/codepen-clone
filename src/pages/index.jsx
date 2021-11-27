@@ -1,68 +1,60 @@
 import tw from "twin.macro";
 import React from "react";
+import Link from "next/link";
+import { SiHtml5, SiCss3, SiJavascript } from "react-icons/si";
 
 function Home() {
   return (
     <Wrapper>
-      <h1 tw="text-5xl text-white text-center">Hi Folks</h1>
-      <p tw="text-xl mt-4 text-white text-justify ml-auto mr-auto width[100%]">
-        loremDuis mollit veniam nulla officia velit. Fugiat sint nisi incididunt
-        nulla non qui. Aliquip deserunt laborum ullamco voluptate eiusmod minim
-        laborum do consectetur. Magna est consequat eu cupidatat sit amet amet
-        aliqua proident excepteur velit.Ipsum aute ex nulla minim. Adipisicing
-        eiusmod ut sunt anim ullamco. Et non consequat anim irure adipisicing in
-        esse culpa aliquip occaecat occaecat Lorem. Duis elit duis sint do
-        aliqua occaecat nulla. <br />
+      <h1
+        className="gradient-text-1"
+        tw="text-5xl text-white text-center font-extrabold"
+      >
+        Hi Folks
+      </h1>
+      <p className="para">
+        CodeworK is a platform where anyone can work around with coding, it was
+        first intentionally made to replicate the @codepen but after working on
+        this, i have so much interesting features in my mind which will be added
+        very soon. Right now website could be buggy or not responsive properly
+        but i am giving my time to fix this all. <br />
         <br />
-        Id aliquip in excepteur commodo ex ex id esse dolor. Id voluptate tempor
-        cupidatat veniam non mollit. Ullamco consectetur nostrud eiusmod laboris
-        qui cillum. Eu sit ad sunt nulla excepteur labore amet anim non esse
-        cillum velit cillum. Cillum laboris proident enim officia duis. Fugiat
-        do culpa cillum nulla occaecat quis ut aliquip et pariatur aute laborum
-        ea. Dolore eu amet ex adipisicing.
-        <br />
-        <br /> Minim ullamco ea cillum excepteur. Ut nulla ea Lorem dolor est et
-        exercitation ut officia consectetur adipisicing duis ut voluptate. Nisi
-        sunt dolor eu qui nulla amet anim veniam incididunt proident ad. Veniam
-        eu aliqua laborum cillum dolore eiusmod sunt veniam reprehenderit do
-        aute laborum. Adipisicing laboris eiusmod tempor eiusmod aute
-        adipisicing voluptate. <br />
-        <br />
-        Veniam minim fugiat exercitation labore do tempor. Anim pariatur eu
-        consectetur qui deserunt sit tempor pariatur adipisicing irure est.
-        Deserunt ex eu pariatur Lorem qui proident aute. Sit pariatur laborum
-        minim proident ea culpa ipsum sit ea commodo. Tempor officia dolor ipsum
-        exercitation minim.
+        Create your ideas using the{" "}
+        <Link href="/editor">
+          <a tw="color[#1890ff]">editor tool</a>
+        </Link>{" "}
+        where you can code your{" "}
+        <span>
+          HTML <SiHtml5 size="24" color="#d4d4d4" tw="inline" />
+        </span>
+        ,{" "}
+        <span>
+          CSS <SiCss3 size="24" color="#d4d4d4" tw="inline" />
+        </span>{" "}
+        &{" "}
+        <span>
+          JS <SiJavascript size="24" color="#d4d4d4" tw="inline" />
+        </span>{" "}
+        and can have live preview as well.
         <br />
         <br />
-        loremDuis mollit veniam nulla officia velit. Fugiat sint nisi incididunt
-        nulla non qui. Aliquip deserunt laborum ullamco voluptate eiusmod minim
-        laborum do consectetur. Magna est consequat eu cupidatat sit amet amet
-        aliqua proident excepteur velit.Ipsum aute ex nulla minim. Adipisicing
-        eiusmod ut sunt anim ullamco. Et non consequat anim irure adipisicing in
-        esse culpa aliquip occaecat occaecat Lorem. Duis elit duis sint do
-        aliqua occaecat nulla. <br />
-        <br />
-        Id aliquip in excepteur commodo ex ex id esse dolor. Id voluptate tempor
-        cupidatat veniam non mollit. Ullamco consectetur nostrud eiusmod laboris
-        qui cillum. Eu sit ad sunt nulla excepteur labore amet anim non esse
-        cillum velit cillum. Cillum laboris proident enim officia duis. Fugiat
-        do culpa cillum nulla occaecat quis ut aliquip et pariatur aute laborum
-        ea. Dolore eu amet ex adipisicing.
-        <br />
-        <br /> Minim ullamco ea cillum excepteur. Ut nulla ea Lorem dolor est et
-        exercitation ut officia consectetur adipisicing duis ut voluptate. Nisi
-        sunt dolor eu qui nulla amet anim veniam incididunt proident ad. Veniam
-        eu aliqua laborum cillum dolore eiusmod sunt veniam reprehenderit do
-        aute laborum. Adipisicing laboris eiusmod tempor eiusmod aute
-        adipisicing voluptate. <br />
-        <br />
-        Veniam minim fugiat exercitation labore do tempor. Anim pariatur eu
-        consectetur qui deserunt sit tempor pariatur adipisicing irure est.
-        Deserunt ex eu pariatur Lorem qui proident aute. Sit pariatur laborum
-        minim proident ea culpa ipsum sit ea commodo. Tempor officia dolor ipsum
-        exercitation minim.
       </p>
+      <h1
+        className="gradient-text-2"
+        tw="text-3xl font-extrabold text-white text-left inline-block"
+      >
+        Features coming soon :
+      </h1>
+      <ul className="feature-list">
+        <li>
+          Separate Dashboard where you can find all of your snippet/template
+        </li>
+        <li>Support For Template engines like pug/ejs</li>
+        <li>Make your own snippets and share them with the world</li>
+        <li>Make your snippet as Public or Private templates</li>
+        <li>Download your and other public template</li>
+        <li>Private snippet store</li>
+      </ul>
     </Wrapper>
   );
 }
@@ -70,5 +62,9 @@ function Home() {
 export default Home;
 
 const Wrapper = tw.div`
-p-16
+p-8
+sm:p-16
+[.para]:(text-xl mt-4 text-white text-justify ml-auto mr-auto width[100%])
+[.feature-list]:(m-4  text-white text-justify ml-auto mr-auto width[94%] list-disc)
+[.feature-list li]:(text-xl mt-2 text-white text-justify )
 `;

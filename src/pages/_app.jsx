@@ -3,14 +3,15 @@ import "tailwindcss/tailwind.css";
 import "../styles/globals.css";
 import { GlobalStyles } from "twin.macro";
 import { Header, Footer } from "../components";
+import { ApolloProvider } from "../providers";
 function MyApp({ Component, pageProps }) {
   return (
-    <div>
+    <ApolloProvider>
       <GlobalStyles />
       <Header />
       <Component {...pageProps} />
       <Footer />
-    </div>
+    </ApolloProvider>
   );
 }
 

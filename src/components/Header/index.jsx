@@ -17,24 +17,31 @@ function HeaderComp() {
   };
   return (
     <Header>
-      <Menu
-        onClick={handleClick}
-        selectedKeys={router.pathname}
-        mode="horizontal"
-        theme="dark"
-      >
-        <Menu.Item key="/">
-          <Link href="/">CodeworK</Link>
-        </Menu.Item>
-        <Menu.Item key="/editor">
-          <Link href="/editor">Editor</Link>
-        </Menu.Item>
-        <Menu.Item key="/feeds">
-          <Link href="/feeds">Feeds</Link>
-        </Menu.Item>
-      </Menu>
-      <div className="flex-div" tw="flex items-center">
-        <Button type="primary" size="large">
+      <div tw="flex items-center w-full justify-between sm:(justify-items-start w-auto)">
+        <Link href="/">
+          <a
+            className="gradient-text-2"
+            tw="text-3xl text-white font-bold mr-4"
+          >
+            CodeworK
+          </a>
+        </Link>
+        <Menu
+          onClick={handleClick}
+          selectedKeys={router.pathname}
+          mode="horizontal"
+          theme="dark"
+        >
+          <Menu.Item key="/editor">
+            <Link href="/editor">Editor</Link>
+          </Menu.Item>
+          <Menu.Item key="/feeds">
+            <Link href="/feeds">Feeds</Link>
+          </Menu.Item>
+        </Menu>
+      </div>
+      {/* <div tw="flex items-center">
+        <Button type="primary" size="large" className="gradient-text-3">
           Log In
         </Button>
         <Menu
@@ -80,7 +87,7 @@ function HeaderComp() {
             </Menu.Item>
           </Menu.SubMenu>
         </Menu>
-      </div>
+      </div> */}
     </Header>
   );
 }

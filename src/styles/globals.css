@@ -19,6 +19,19 @@ html {
   background-color: var(--main-background);
 }
 
+.gradient-text-1 {
+  background: -webkit-linear-gradient(180deg, #09009f, #00ff95 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.gradient-text-2 {
+  background: -webkit-linear-gradient(65deg, #09009f, #00ff95 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .gutter {
   background-color: var(--main-background);
   background-repeat: no-repeat;
@@ -35,6 +48,9 @@ html {
   cursor: row-resize;
 }
 
+.ant-menu-dark.ant-menu-submenu-popup .ant-menu-sub {
+  background: var(--secondary-background);
+}
 .ant-menu-dark.ant-menu-submenu-popup
   .ant-menu-sub
   .ant-menu-item:hover
