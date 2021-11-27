@@ -24,12 +24,12 @@ function EditorComp(props) {
   };
   return (
     <Editor>
-      <div tw="flex flex-row items-center justify-between height[45px]  background[#060606] pr-2">
-        <p tw=" font-openSans font-bold text-white background[hsl(228,7%,12%)] padding[9px 12px] border-top[3px solid #b9b9b9]">
+      <div tw="flex flex-row items-center justify-between height[45px]  background[var(--main-background)] pr-2">
+        <p tw=" font-openSans font-bold text-white background[var(--secondary-background)] padding[9px 12px] border-top[3px solid #b9b9b9]">
           {title}
         </p>
         <button
-          tw="ml-4 p-2 background[hsl(227 12% 30%)] hover:background[hsl(228deg 12% 40%)]"
+          tw="ml-4 p-2 background[var(--tertiary-background)] hover:background[hsl(228deg 12% 40%)]"
           onClick={onCollapsed}
         >
           {open ? (
