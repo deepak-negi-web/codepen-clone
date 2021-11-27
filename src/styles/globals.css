@@ -2,18 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 @import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,600&family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap");
-/* #060606 */
+
+:root {
+  --main-background: #060606;
+  --secondary-background: hsl(228, 7%, 12%);
+  --tertiary-background: hsl(227 12% 30%);
+  --primary-border-color: #34363e;
+}
+
 body,
 html {
   font-family: "Open Sans", sans-serif;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  background-color: #060606;
+  background-color: var(--main-background);
 }
 
 .gutter {
-  background-color: #060606;
+  background-color: var(--main-background);
   background-repeat: no-repeat;
   background-position: 50%;
 }
@@ -26,4 +33,12 @@ html {
 .gutter.gutter-vertical {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=");
   cursor: row-resize;
+}
+
+.ant-menu-dark.ant-menu-submenu-popup
+  .ant-menu-sub
+  .ant-menu-item:hover
+  .ant-menu-title-content
+  svg {
+  color: #fff !important;
 }
