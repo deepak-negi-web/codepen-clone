@@ -2,15 +2,18 @@ import "antd/dist/antd.css";
 import "tailwindcss/tailwind.css";
 import "../styles/globals.css";
 import { GlobalStyles } from "twin.macro";
-import { Header, Footer } from "../components";
-import { ApolloProvider } from "../providers";
+import { Header, Footer, ModalManager } from "../components";
+import { ApolloProvider, ModalProvider } from "../providers";
 function MyApp({ Component, pageProps }) {
   return (
     <ApolloProvider>
-      <GlobalStyles />
-      <Header />
-      <Component {...pageProps} />
-      <Footer />
+      <ModalProvider>
+        <GlobalStyles />
+        <ModalManager />
+        <Header />
+        <Component {...pageProps} />
+        <Footer />
+      </ModalProvider>
     </ApolloProvider>
   );
 }

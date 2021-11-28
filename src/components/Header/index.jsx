@@ -8,13 +8,17 @@ import { Menu, Button } from "antd";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
+import { useModal } from "../../providers";
+
 import { Header } from "./styled";
 
 function HeaderComp() {
   const router = useRouter();
+  const { openModal } = useModal();
   const handleClick = (e) => {
     console.log("click ", e);
   };
+
   return (
     <Header>
       <div tw="flex items-center w-full justify-between sm:(justify-items-start w-auto)">
@@ -40,8 +44,13 @@ function HeaderComp() {
           </Menu.Item>
         </Menu>
       </div>
-      {/* <div tw="flex items-center">
-        <Button type="primary" size="large" className="gradient-text-3">
+      <div tw="flex items-center">
+        <Button
+          type="primary"
+          size="large"
+          className="gradient-text-3"
+          onClick={() => openModal("login")}
+        >
           Log In
         </Button>
         <Menu
@@ -87,7 +96,7 @@ function HeaderComp() {
             </Menu.Item>
           </Menu.SubMenu>
         </Menu>
-      </div> */}
+      </div>
     </Header>
   );
 }

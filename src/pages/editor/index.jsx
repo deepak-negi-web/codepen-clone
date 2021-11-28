@@ -74,5 +74,5 @@ export const BottomPane = tw.div`
 `;
 
 export const Wrapper = tw(Split)`
-w-full height[calc(100vh - 64px)] flex-grow
+w-full height[calc(100vh - 128px)] flex-grow
 `;

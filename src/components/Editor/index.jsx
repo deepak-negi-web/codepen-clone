@@ -1,10 +1,13 @@
 import tw from "twin.macro";
+import { useEffect } from "react";
 import "codemirror/lib/codemirror.css";
 import "codemirror/theme/material.css";
 import { Editor } from "./styles";
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { FaCompressAlt, FaExpandAlt } from "react-icons/fa";
+import { useModal } from "../../providers";
+import { isClient } from "../../utils";
 
 const CodeEditor = dynamic(
   () => {
@@ -19,8 +22,12 @@ const CodeEditor = dynamic(
 function EditorComp(props) {
   const { title, onChange, language, value, onCollapsed } = props;
   const [open, setOpen] = useState(true);
+  const { openModal } = useModal();
   const onChangeHandler = (_editor, _data, value) => {
     onChange(value);
+  };
+  const onSave = (editor) => {
+    openModal("login");
   };
   return (
     <Editor>
@@ -49,6 +56,9 @@ function EditorComp(props) {
           mode: language,
           theme: "material",
           lineNumbers: true,
+          extraKeys: {
+            "Ctrl-S": onSave,
+          },
         }}
       />
     </Editor>
