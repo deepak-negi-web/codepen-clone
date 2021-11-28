@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Split from "react-split";
 import { Editor } from "../../components";
 import useLocalStorage from "../../customHooks/useLocalStorage";
+import { getSourceDoc } from "../../utils";
 
 function EditorPage() {
   const [html, setHtml] = useLocalStorage("html", "");
@@ -13,25 +14,8 @@ function EditorPage() {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      setSrcDoc(`
-    ${
-      css
-        ? `<style>
-      ${css}
-    </style>`
-        : ""
-    }
-  <body>
-    ${html}
-    </body>
-    ${
-      js
-        ? `<script>
-      ${js}
-    </script>`
-        : ""
-    }
-  `);
+      const result = getSourceDoc({ html, css, js });
+      setSrcDoc(result);
     }, 250);
     return () => clearTimeout(timeout);
   }, [html, css, js]);
@@ -64,9 +48,15 @@ function EditorPage() {
         <iframe
           srcDoc={srcDoc}
           title="OUTPUT"
-          sandbox="allow-scripts"
-          frameBorder="0"
           tw="w-full h-full bg-gray-100"
+          name="CodeworK"
+          frameBorder="0"
+          sandbox="allow-downloads allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+          allow="accelerometer; camera; encrypted-media; display-capture; geolocation; gyroscope; microphone; midi; clipboard-read; clipboard-write"
+          allowfullscreen="true"
+          allowpaymentrequest="true"
+          allowtransparency="true"
+          loading="lazy"
         ></iframe>
       </BottomPane>
     </Wrapper>
