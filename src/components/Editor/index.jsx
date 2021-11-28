@@ -1,5 +1,4 @@
 import tw from "twin.macro";
-import { useEffect } from "react";
 import "codemirror/lib/codemirror.css";
 import "codemirror/theme/material.css";
 import { Editor } from "./styles";
@@ -7,7 +6,6 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { FaCompressAlt, FaExpandAlt } from "react-icons/fa";
 import { useModal } from "../../providers";
-import { isClient } from "../../utils";
 
 const CodeEditor = dynamic(
   () => {
@@ -56,9 +54,9 @@ function EditorComp(props) {
           mode: language,
           theme: "material",
           lineNumbers: true,
-          extraKeys: {
-            "Ctrl-S": onSave,
-          },
+          // extraKeys: {
+          //   "Ctrl-S": onSave,
+          // },
         }}
       />
     </Editor>

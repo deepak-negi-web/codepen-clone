@@ -44,7 +44,7 @@ function HeaderComp() {
           </Menu.Item>
         </Menu>
       </div>
-      <div tw="flex items-center">
+      {/* <div tw="flex items-center">
         <Button
           type="primary"
           size="large"
@@ -96,7 +96,7 @@ function HeaderComp() {
             </Menu.Item>
           </Menu.SubMenu>
         </Menu>
-      </div>
+      </div> */}
     </Header>
   );
 }
