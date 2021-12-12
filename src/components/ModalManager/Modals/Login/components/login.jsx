@@ -1,6 +1,9 @@
-import { Form, Input, Button, Checkbox } from "antd";
-import { RiMailFill, RiLockPasswordFill } from "react-icons/ri";
 import "twin.macro";
+import { Form, Input, Button, Checkbox, Divider, Space } from "antd";
+import { RiMailFill, RiLockPasswordFill } from "react-icons/ri";
+import { FcGoogle } from "react-icons/fc";
+import { BsGithub } from "react-icons/bs";
+import { useSession, signIn, signOut } from "next-auth/react";
 
 const LoginComp = ({
   switchViewToSignup = () => null,
@@ -61,7 +64,51 @@ const LoginComp = ({
         <Button type="primary" htmlType="submit" tw="w-full">
           Log In
         </Button>
-        <div tw="flex items-center justify-center mt-2">
+        <Divider>OR</Divider>
+        <Space
+          align="center"
+          direction="horizontal"
+          style={{ display: "flex", justifyContent: "center" }}
+        >
+          <Button
+            size="large"
+            onClick={() => signIn("github")}
+            icon={
+              <BsGithub
+                size={20}
+                style={{ display: "inline", marginRight: "8px" }}
+              />
+            }
+            style={{
+              backgroundColor: "#24292e",
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              borderRadius: "4px",
+            }}
+          >
+            Log in with GitHub
+          </Button>
+
+          <Button
+            size="large"
+            onClick={() => signIn("google")}
+            icon={
+              <FcGoogle
+                size={20}
+                style={{ display: "inline", marginRight: "8px" }}
+              />
+            }
+            style={{
+              display: "flex",
+              alignItems: "center",
+              borderRadius: "4px",
+            }}
+          >
+            Log in with Google
+          </Button>
+        </Space>
+        <div tw="flex items-center justify-center mt-8">
           Need an account?
           <Button type="link" onClick={switchViewToSignup}>
             Sign Up
