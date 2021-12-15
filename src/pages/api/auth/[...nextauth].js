@@ -1,8 +1,9 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
+import CredentialsProvider from "next-auth/providers/credentials";
 import EmailProvider from "next-auth/providers/email";
-import jwt from "jsonwebtoken";
+import { sign, verify } from "jsonwebtoken";
 
 export default NextAuth({
   providers: [
@@ -10,12 +11,48 @@ export default NextAuth({
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      checks: ["state"],
     }),
     GithubProvider({
       clientId: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      checks: ["state"],
+    }),
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        name: { label: "Name", type: "text", placeholder: "Enter your name" },
+        email: {
+          label: "Username",
+          type: "text",
+          placeholder: "Enter your email",
+        },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials, req) {
+        console.log(credentials);
+        // You need to provide your own logic here that takes the credentials
+        // submitted and returns either a object representing a user or value
+        // that is false/null if the credentials are invalid.
+        // e.g. return { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
+        // You can also use the `req` object to obtain additional parameters
+        // (i.e., the request IP address)
+        // const res = await fetch("/your/endpoint", {
+        //   method: 'POST',
+        //   body: JSON.stringify(credentials),
+        //   headers: { "Content-Type": "application/json" }
+        // })
+        // const user = await res.json()
+
+        // // If no error and we have user data, return it
+        // if (res.ok && user) {
+        //   return user
+        // }
+        // Return null if user data could not be retrieved
+        return {
+          id: new Date().getTime(),
+          name: credentials.name,
+          email: credentials.email,
+        };
+      },
     }),
     // Passwordless / email sign in
     // EmailProvider({
@@ -23,16 +60,16 @@ export default NextAuth({
     //   from: "NextAuth.js <no-reply@example.com>",
     // }),
   ],
-  secret: process.env.SECRET,
   session: {
     strategy: "jwt",
   },
+  secret: process.env.SECRET,
   jwt: {
     secret: process.env.SECRET,
-    maxAge: 60 * 60 * 24, // 1 day
+    // maxAge: 60 * 60 * 24, // 1 day
     encode: async ({ secret, token, maxAge }) => {
-      console.log(token);
       const jwtClaims = {
+        ...token,
         sub: token.sub,
         name: token.name,
         email: token.email,
@@ -45,20 +82,14 @@ export default NextAuth({
           "x-hasura-user-id": token.id,
         },
       };
-      console.log("auth", 3, "jwtClaims", jwtClaims);
-      const encodedToken = jwt.sign(jwtClaims, secret, { algorithm: "HS256" });
-      return encodedToken;
+      return sign(jwtClaims, secret, { algorithm: "HS256" });
     },
     decode: async ({ secret, token }) => {
-      console.log("auth", 4, token);
-
-      const decodedToken = jwt.verify(token, secret, { algorithm: "HS256" });
-      return decodedToken;
+      return verify(token, secret, { algorithms: ["HS256"] });
     },
   },
   callbacks: {
-    jwt: async (token, user, account, profile, isNewUser) => {
-      console.log("auth", 2);
+    jwt: async ({ token, user, account, profile, isNewUser }) => {
       const ifUserSignedIn = user ? true : false;
       if (ifUserSignedIn) {
         token.id = user.id.toString();
@@ -66,12 +97,11 @@ export default NextAuth({
       }
       return Promise.resolve(token);
     },
-    session: async (session, token) => {
-      console.log("auth", 1);
-      const encodedToken = jwt.sign(token, process.env.SECRET, {
+    session: async ({ session, token }) => {
+      const encodedToken = sign(token, process.env.SECRET, {
         algorithm: "HS256",
       });
-      session.id = token.id;
+      session.id = token.id.toString();
       session.token = encodedToken;
       return Promise.resolve(session);
     },

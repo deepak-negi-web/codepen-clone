@@ -7,7 +7,11 @@ import { useSession, signIn, signOut } from "next-auth/react";
 
 const SignupComp = ({ switchViewToLogin = () => null }) => {
   const onFinish = (values) => {
-    console.log("Success:", values);
+    signIn("credentials", {
+      email: values.email,
+      name: values.fullName,
+      password: values.password,
+    });
   };
 
   const onFinishFailed = (errorInfo) => {

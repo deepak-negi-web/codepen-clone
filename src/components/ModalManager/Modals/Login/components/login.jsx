@@ -10,7 +10,10 @@ const LoginComp = ({
   switchViewToForgotPassword = () => null,
 }) => {
   const onFinish = (values) => {
-    console.log("Success:", values);
+    signIn("credentials", {
+      email: values.email,
+      password: values.password,
+    });
   };
 
   const onFinishFailed = (errorInfo) => {

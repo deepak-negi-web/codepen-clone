@@ -60,61 +60,67 @@ function HeaderComp() {
             Log In
           </Button>
         ) : (
-          <Menu
-            onClick={handleClick}
-            selectedKeys={router.pathname}
-            mode="horizontal"
-            theme="dark"
-            style={{
-              padding: "0",
-              marginLeft: "1rem",
-              backgroundColor: "transparent",
-            }}
-          >
-            <Menu.SubMenu
-              key="SubMenu"
-              title={
-                <Avatar
-                  name={session.user.name}
-                  src={session.user?.image}
-                  size="50"
-                  round={true}
-                />
-              }
+          <div tw="flex items-center">
+            <h2 tw="text-white font-semibold text-lg">
+              Hi {session?.user?.name}
+            </h2>
+            <Menu
+              onClick={handleClick}
+              selectedKeys={router.pathname}
+              mode="horizontal"
+              theme="dark"
               style={{
                 padding: "0",
-                borderRadius: "50%",
+                marginLeft: "1rem",
+                backgroundColor: "transparent",
               }}
             >
-              <Menu.Item key="setting:1">
-                <span tw="flex items-center">
-                  <MdDashboardCustomize
-                    size="24"
-                    color="var(--tertiary-background)"
+              <Menu.SubMenu
+                key="SubMenu"
+                title={
+                  <Avatar
+                    name={session?.user?.name}
+                    email={session?.user?.email}
+                    src={session.user?.image}
+                    size="48"
+                    round={true}
                   />
-                  <span tw="ml-2">Dashboard</span>
-                </span>
-              </Menu.Item>
-              <Menu.Item key="setting:2">
-                <span tw="flex items-center">
-                  <RiUserSettingsFill
-                    size="24"
-                    color="var(--tertiary-background)"
-                  />
-                  <span tw="ml-2">Profile</span>
-                </span>
-              </Menu.Item>
-              <Menu.Item key="logout">
-                <span tw="flex items-center">
-                  <HiOutlineLogout
-                    size="24"
-                    color="var(--tertiary-background)"
-                  />
-                  <span tw="ml-2">Log Out</span>
-                </span>
-              </Menu.Item>
-            </Menu.SubMenu>
-          </Menu>
+                }
+                style={{
+                  padding: "0",
+                  borderRadius: "50%",
+                }}
+              >
+                <Menu.Item key="setting:1">
+                  <span tw="flex items-center">
+                    <MdDashboardCustomize
+                      size="24"
+                      color="var(--tertiary-background)"
+                    />
+                    <span tw="ml-2 text-lg">Dashboard</span>
+                  </span>
+                </Menu.Item>
+                <Menu.Item key="setting:2">
+                  <span tw="flex items-center">
+                    <RiUserSettingsFill
+                      size="24"
+                      color="var(--tertiary-background)"
+                    />
+                    <span tw="ml-2 text-lg">Profile</span>
+                  </span>
+                </Menu.Item>
+                <Menu.Item key="logout">
+                  <span tw="flex items-center">
+                    <HiOutlineLogout
+                      size="24"
+                      color="var(--tertiary-background)"
+                    />
+                    <span tw="ml-2 text-lg">Log Out</span>
+                  </span>
+                </Menu.Item>
+              </Menu.SubMenu>
+            </Menu>
+          </div>
         )}
       </div>
     </Header>
