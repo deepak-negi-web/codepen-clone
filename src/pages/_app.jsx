@@ -3,22 +3,25 @@ import "tailwindcss/tailwind.css";
 import { GlobalStyles } from "twin.macro";
 import "../styles/globals.css";
 import { SessionProvider } from "next-auth/react";
+import { ApolloProvider } from "@apollo/client";
 import { Header, Footer, ModalManager } from "../components";
-import { ApolloProvider, ModalProvider } from "../providers";
+import { ModalProvider, useApollo } from "../providers";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
+  console.log(pageProps);
+  const apolloClient = useApollo(pageProps.initialApolloState);
   return (
-    <ApolloProvider>
-      <ModalProvider>
-        <GlobalStyles />
-        <ModalManager />
-        <SessionProvider session={session}>
+    <SessionProvider session={session}>
+      <ApolloProvider client={apolloClient}>
+        <ModalProvider>
+          <GlobalStyles />
+          <ModalManager />
           <Header />
           <Component {...pageProps} />
-        </SessionProvider>
-        <Footer />
-      </ModalProvider>
-    </ApolloProvider>
+          <Footer />
+        </ModalProvider>
+      </ApolloProvider>
+    </SessionProvider>
   );
 }
 
