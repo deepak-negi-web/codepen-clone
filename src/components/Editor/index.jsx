@@ -1,14 +1,16 @@
 import tw from "twin.macro";
-import "codemirror/lib/codemirror.css";
-import "codemirror/theme/material.css";
-import { Editor } from "./styles";
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { useSession } from "next-auth/react";
 import { FaCompressAlt, FaExpandAlt } from "react-icons/fa";
+
+import { Editor } from "./styles";
 import { useModal } from "../../providers";
 
 const CodeEditor = dynamic(
   () => {
+    require("codemirror/lib/codemirror.css");
+    require("codemirror/theme/material.css");
     require("codemirror/mode/xml/xml");
     require("codemirror/mode/javascript/javascript");
     require("codemirror/mode/css/css");
@@ -19,13 +21,18 @@ const CodeEditor = dynamic(
 
 function EditorComp(props) {
   const { title, onChange, language, value, onCollapsed } = props;
+  const { status, data: session } = useSession();
   const [open, setOpen] = useState(true);
   const { openModal } = useModal();
   const onChangeHandler = (_editor, _data, value) => {
     onChange(value);
   };
   const onSave = (editor) => {
-    openModal("login");
+    if (status !== "authenticated") {
+      openModal("login");
+    } else {
+      console.log("save", editor);
+    }
   };
   return (
     <Editor>
@@ -54,9 +61,9 @@ function EditorComp(props) {
           mode: language,
           theme: "material",
           lineNumbers: true,
-          // extraKeys: {
-          //   "Ctrl-S": onSave,
-          // },
+          extraKeys: {
+            "Ctrl-S": onSave,
+          },
         }}
       />
     </Editor>

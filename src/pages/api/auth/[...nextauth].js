@@ -4,8 +4,8 @@ import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import EmailProvider from "next-auth/providers/email";
 import { sign, verify } from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
-import { bcryptCompare } from "../../../utils";
 import { apolloClient } from "../../../lib/apolloClient";
 import { GET_USER_DETAILS } from "../../../graphql";
 
@@ -46,7 +46,7 @@ export default NextAuth({
         });
         if (users.length > 0) {
           const [user] = users;
-          const matches = await bcryptCompare(
+          const matches = await bcrypt.compare(
             credentials.password,
             user.password
           );

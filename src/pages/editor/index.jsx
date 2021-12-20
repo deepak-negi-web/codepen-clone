@@ -6,9 +6,9 @@ import useLocalStorage from "../../customHooks/useLocalStorage";
 import { getSourceDoc } from "../../utils";
 
 function EditorPage() {
-  const [html, setHtml] = useLocalStorage("html", "");
-  const [css, setCss] = useLocalStorage("css", "");
-  const [js, setJs] = useLocalStorage("js", "");
+  const [html, setHtml] = useState("");
+  const [css, setCss] = useState("");
+  const [js, setJs] = useState("");
   const [srcDoc, setSrcDoc] = useState("");
   const [collapsedIndex, setCollapsedIndex] = useState(null);
 

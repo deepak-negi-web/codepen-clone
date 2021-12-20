@@ -4,6 +4,11 @@ module.exports = {
       test: /\.svg$/,
       use: ["@svgr/webpack"],
     });
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      child_process: false,
+    };
 
     return config;
   },

@@ -37,7 +37,6 @@ const Login = ({ closeFn = () => null, open = false }) => {
   };
 
   const handleSubmit = async (type, values) => {
-    console.log("handleSubmit", type, values);
     try {
       setIsSubmitting(true);
       if (type === "login") {
@@ -51,7 +50,6 @@ const Login = ({ closeFn = () => null, open = false }) => {
           setIsSubmitting(false);
         } else if (response?.status === 200) {
           setIsSubmitting(false);
-          console.log("logged in");
           closeModalHandler();
         }
       }
