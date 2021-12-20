@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { ApolloClient, InMemoryCache, HttpLink, split } from "@apollo/client";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { setContext } from "@apollo/client/link/context";
@@ -118,5 +119,5 @@ export function initializeApollo(initialState = null) {
 }
 
 export function useApollo(initialState) {
-  return initializeApollo(initialState, [initialState]);
+  return useMemo(() => initializeApollo(initialState), [initialState]);
 }

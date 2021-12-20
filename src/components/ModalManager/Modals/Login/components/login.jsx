@@ -8,12 +8,11 @@ import { useSession, signIn, signOut } from "next-auth/react";
 const LoginComp = ({
   switchViewToSignup = () => null,
   switchViewToForgotPassword = () => null,
+  isSubmitting = false,
+  handleSubmit = () => null,
 }) => {
-  const onFinish = (values) => {
-    signIn("credentials", {
-      email: values.email,
-      password: values.password,
-    });
+  const onFinish = async (values) => {
+    await handleSubmit("login", values);
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -64,7 +63,13 @@ const LoginComp = ({
       </Form.Item>
 
       <Form.Item>
-        <Button type="primary" htmlType="submit" tw="w-full">
+        <Button
+          type="primary"
+          htmlType="submit"
+          tw="w-full"
+          loading={isSubmitting}
+          disabled={isSubmitting}
+        >
           Log In
         </Button>
         <Divider>OR</Divider>

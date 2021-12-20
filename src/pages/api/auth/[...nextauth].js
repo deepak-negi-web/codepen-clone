@@ -5,6 +5,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import EmailProvider from "next-auth/providers/email";
 import { sign, verify } from "jsonwebtoken";
 
+import { bcryptCompare } from "../../../utils";
+import { apolloClient } from "../../../lib/apolloClient";
+import { GET_USER_DETAILS } from "../../../graphql";
+
 export default NextAuth({
   providers: [
     // OAuth authentication providers...
@@ -28,30 +32,33 @@ export default NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-        console.log(credentials);
-        // You need to provide your own logic here that takes the credentials
-        // submitted and returns either a object representing a user or value
-        // that is false/null if the credentials are invalid.
-        // e.g. return { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
-        // You can also use the `req` object to obtain additional parameters
-        // (i.e., the request IP address)
-        // const res = await fetch("/your/endpoint", {
-        //   method: 'POST',
-        //   body: JSON.stringify(credentials),
-        //   headers: { "Content-Type": "application/json" }
-        // })
-        // const user = await res.json()
-
-        // // If no error and we have user data, return it
-        // if (res.ok && user) {
-        //   return user
-        // }
-        // Return null if user data could not be retrieved
-        return {
-          id: new Date().getTime(),
-          name: credentials.name,
-          email: credentials.email,
-        };
+        const {
+          data: { users = [] },
+        } = await apolloClient.query({
+          query: GET_USER_DETAILS,
+          variables: {
+            where: {
+              email: {
+                _eq: credentials.email,
+              },
+            },
+          },
+        });
+        if (users.length > 0) {
+          const [user] = users;
+          const matches = await bcryptCompare(
+            credentials.password,
+            user.password
+          );
+          if (matches) {
+            return {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+            };
+          }
+          return null;
+        }
       },
     }),
     // Passwordless / email sign in
@@ -89,6 +96,9 @@ export default NextAuth({
     },
   },
   callbacks: {
+    signIn: async ({ user, account, profile, email, credentials }) => {
+      return true;
+    },
     jwt: async ({ token, user, account, profile, isNewUser }) => {
       const ifUserSignedIn = user ? true : false;
       if (ifUserSignedIn) {
@@ -108,3 +118,5 @@ export default NextAuth({
   },
   debug: true,
 });
+
+// hashing
