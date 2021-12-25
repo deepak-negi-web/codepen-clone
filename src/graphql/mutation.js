@@ -20,3 +20,33 @@ export const CREATE_USER = gql`
     }
   }
 `;
+
+export const CREATE_WORK = gql`
+  mutation CREATE_WORK($object: workspace_works_insert_input!) {
+    createdWork: insert_workspace_works_one(object: $object) {
+      id
+      label
+      files {
+        content
+        id
+        type
+      }
+    }
+  }
+`;
+
+export const UPDATE_WORK_FILE = gql`
+  mutation UPDATE_WORK_FILE(
+    $where: workspace_files_bool_exp!
+    $_set: workspace_files_set_input!
+  ) {
+    update_workspace_files(where: $where, _set: $_set) {
+      returning {
+        content
+        id
+        type
+        cdnUrl
+      }
+    }
+  }
+`;

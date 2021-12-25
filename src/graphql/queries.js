@@ -27,3 +27,19 @@ export const GET_AUTH_PROVIDER_DETAILS = gql`
     }
   }
 `;
+
+export const GET_WORK_DETAILS = gql`
+  query GET_WORK_DETAILS($id: uuid!) {
+    workDetails: workspace_works_by_pk(id: $id) {
+      id
+      label
+      isPublished
+      files {
+        cdnUrl
+        content
+        id
+        type
+      }
+    }
+  }
+`;

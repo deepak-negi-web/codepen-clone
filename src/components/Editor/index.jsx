@@ -20,18 +20,20 @@ const CodeEditor = dynamic(
 );
 
 function EditorComp(props) {
-  const { title, onChange, language, value, onCollapsed } = props;
+  const { title, onChange, language, value, onCollapsed, onSaveHandler } =
+    props;
   const { status, data: session } = useSession();
   const [open, setOpen] = useState(true);
   const { openModal } = useModal();
   const onChangeHandler = (_editor, _data, value) => {
     onChange(value);
   };
-  const onSave = (editor) => {
+  const onSave = async (editor) => {
     if (status !== "authenticated") {
       openModal("login");
     } else {
       console.log("save", editor);
+      await onSaveHandler();
     }
   };
   return (

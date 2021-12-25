@@ -1,61 +1,113 @@
 import tw from "twin.macro";
 import { useState, useEffect } from "react";
 import Split from "react-split";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
 import { Editor } from "../../components";
 import useLocalStorage from "../../customHooks/useLocalStorage";
 import { getSourceDoc } from "../../utils";
-import { CREATE_WORK } from "../../graphql";
+import { CREATE_WORK, GET_WORK_DETAILS, UPDATE_WORK_FILE } from "../../graphql";
 
 function EditorPage() {
+  const { status, data: session } = useSession();
   const router = useRouter();
 
+  // local state for editor
   const [html, setHtml] = useState("");
   const [css, setCss] = useState("");
   const [js, setJs] = useState("");
   const [srcDoc, setSrcDoc] = useState("");
   const [collapsedIndex, setCollapsedIndex] = useState(null);
-  const { status, data: session } = useSession();
-  // create work mutation
-  const [createWork, { loading }] = useMutation(CREATE_WORK, {
-    onCompleted: ({ createdWork }) => {
-      router.push(`/editor/${createdWork.id}`);
-    },
-    onError: (error) => {
-      console.error(error);
-    },
-  });
+
+  // query for getting work details
+  const { loading: isLoadingWorkDetails, error: hasErrorOnWorkDetails } =
+    useQuery(GET_WORK_DETAILS, {
+      variables: {
+        id: router.query.workId,
+      },
+      onCompleted: ({ workDetails }) => {
+        if (Object.keys(workDetails).length > 0) {
+          setHtml(
+            workDetails.files.find((file) => file.type === "html").content
+          );
+          setCss(workDetails.files.find((file) => file.type === "css").content);
+          setJs(workDetails.files.find((file) => file.type === "js").content);
+        }
+      },
+      onError: (error) => {
+        console.error(error);
+      },
+    });
+
+  // update work files mutation
+  const [updateWorkFile, { loading: isUpdatingWorkFile }] = useMutation(
+    UPDATE_WORK_FILE,
+    {
+      onCompleted: (data) => {
+        console.log(data);
+      },
+      onError: (error) => {
+        console.error(error);
+      },
+    }
+  );
 
   const createUserWorkHandler = async () => {
-    if (status === "authenticated" && session.user) {
-      await createWork({
-        variables: {
-          object: {
-            label: `Work-${new Date().getTime()}`,
-            userId: session?.user?.id,
-            files: {
-              data: [
-                {
-                  type: "html",
-                  content: html,
-                },
-                {
-                  type: "css",
-                  content: css,
-                },
-                {
-                  type: "js",
-                  content: js,
-                },
-              ],
+    await Promise.all(
+      ["html", "css", "js"].map(async (data) => {
+        updateWorkFile({
+          variables: {
+            where: {
+              workId: {
+                _eq: router.query.workId,
+              },
+              type: {
+                _eq: data,
+              },
+            },
+            _set: {
+              content:
+                data === "html"
+                  ? html
+                  : data === "css"
+                  ? css
+                  : data === "js"
+                  ? js
+                  : "",
             },
           },
-        },
-      });
-    }
+        });
+      })
+    );
+
+    // if (status === "authenticated" && session.user) {
+    //   await createWork({
+    //     variables: {
+    //       object: {
+    //         label: `Work-${new Date().getTime()}`,
+    //         userId: session?.user?.id,
+    //         files: {
+    //           data: [
+    //             {
+    //               type: "html",
+    //               content: html,
+    //             },
+    //             {
+    //               type: "css",
+    //               content: css,
+    //             },
+    //             {
+    //               type: "js",
+    //               content: js,
+    //             },
+    //           ],
+    //         },
+    //       },
+    //     },
+    //   });
+    // }
   };
   useEffect(() => {
     const timeout = setTimeout(() => {
