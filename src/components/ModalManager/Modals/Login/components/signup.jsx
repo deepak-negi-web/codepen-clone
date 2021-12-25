@@ -5,13 +5,13 @@ import { FcGoogle } from "react-icons/fc";
 import { BsGithub } from "react-icons/bs";
 import { useSession, signIn, signOut } from "next-auth/react";
 
-const SignupComp = ({ switchViewToLogin = () => null }) => {
-  const onFinish = (values) => {
-    signIn("credentials", {
-      email: values.email,
-      name: values.fullName,
-      password: values.password,
-    });
+const SignupComp = ({
+  switchViewToLogin = () => null,
+  isSubmitting = false,
+  handleSubmit = () => null,
+}) => {
+  const onFinish = async (values) => {
+    await handleSubmit("signup", values);
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -50,27 +50,47 @@ const SignupComp = ({ switchViewToLogin = () => null }) => {
       </Form.Item>
       <Form.Item
         name="password"
+        hasFeedback
         rules={[{ required: true, message: "Please input your Password!" }]}
       >
-        <Input
+        <Input.Password
           prefix={<RiLockPasswordFill color="#d9d9d9" />}
-          type="password"
           placeholder="Password"
         />
       </Form.Item>
       <Form.Item
         name="confirmPassword"
-        rules={[{ required: true, message: "Please re-enter your Password!" }]}
+        dependencies={["password"]}
+        hasFeedback
+        rules={[
+          { required: true, message: "Please confirm your password!" },
+          ({ getFieldValue }) => ({
+            validator(_, value) {
+              if (!value || getFieldValue("password") === value) {
+                return Promise.resolve();
+              }
+
+              return Promise.reject(
+                new Error("The two passwords that you entered do not match!")
+              );
+            },
+          }),
+        ]}
       >
-        <Input
+        <Input.Password
           prefix={<RiLockPasswordFill color="#d9d9d9" />}
-          type="password"
           placeholder="Confirm Password"
         />
       </Form.Item>
 
       <Form.Item>
-        <Button type="primary" htmlType="submit" tw="w-full">
+        <Button
+          type="primary"
+          htmlType="submit"
+          tw="w-full"
+          loading={isSubmitting}
+          disabled={isSubmitting}
+        >
           Sign Up
         </Button>
         <Divider>OR</Divider>
@@ -96,7 +116,7 @@ const SignupComp = ({ switchViewToLogin = () => null }) => {
               borderRadius: "4px",
             }}
           >
-            Signup with GitHub
+            Login with GitHub
           </Button>
 
           <Button
@@ -114,7 +134,7 @@ const SignupComp = ({ switchViewToLogin = () => null }) => {
               borderRadius: "4px",
             }}
           >
-            Signup with Google
+            Login with Google
           </Button>
         </Space>
         <div tw="flex items-center justify-center mt-8">

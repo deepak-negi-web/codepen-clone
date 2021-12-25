@@ -42,9 +42,8 @@ const LoginComp = ({
         name="password"
         rules={[{ required: true, message: "Please input your Password!" }]}
       >
-        <Input
+        <Input.Password
           prefix={<RiLockPasswordFill color="#d9d9d9" />}
-          type="password"
           placeholder="Password"
         />
       </Form.Item>

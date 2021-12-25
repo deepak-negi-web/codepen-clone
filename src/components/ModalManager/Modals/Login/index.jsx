@@ -1,10 +1,12 @@
 import React from "react";
 import { Modal, Alert } from "antd";
 import { useSession, signIn, signOut } from "next-auth/react";
+import axios from "axios";
 
 import LoginComp from "./components/login";
 import SignupComp from "./components/signup";
 import ForgotPasswordComp from "./components/forgotPassword";
+import { isClient } from "../../../../utils";
 
 const Login = ({ closeFn = () => null, open = false }) => {
   const [view, switchView] = React.useState("login");
@@ -45,12 +47,41 @@ const Login = ({ closeFn = () => null, open = false }) => {
           email: values.email,
           password: values.password,
         });
-        if (response?.status !== 200) {
-          setError("Email or password is incorrect!");
+        if (response?.error) {
+          setError(response?.error);
           setIsSubmitting(false);
-        } else if (response?.status === 200) {
+        } else {
           setIsSubmitting(false);
           closeModalHandler();
+        }
+      } else if (type === "signup") {
+        console.log(type, values);
+        const options = {
+          url: isClient ? `${window.location.origin}/api/register` : "",
+          method: "POST",
+          data: {
+            name: values.fullName,
+            email: values.email,
+            password: values.password,
+          },
+        };
+        const { data } = await axios(options);
+        if (data.success) {
+          const response = await signIn("credentials", {
+            redirect: false,
+            email: values.email,
+            password: values.password,
+          });
+          if (response?.error) {
+            setError(response?.error);
+            setIsSubmitting(false);
+          } else {
+            setIsSubmitting(false);
+            closeModalHandler();
+          }
+        } else {
+          setError("Something Went Wrong! Please try again later.");
+          setIsSubmitting(false);
         }
       }
     } catch (err) {
