@@ -7,7 +7,11 @@ import { sign, verify } from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 import { apolloClient } from "../../../lib/apolloClient";
-import { GET_USER_DETAILS } from "../../../graphql";
+import {
+  GET_USER_DETAILS,
+  GET_AUTH_PROVIDER_DETAILS,
+  CREATE_AUTH_PROVIDER_USER,
+} from "../../../graphql";
 
 export default NextAuth({
   providers: [
@@ -57,15 +61,16 @@ export default NextAuth({
               email: user.email,
             };
           }
-          return null;
+          throw new Error(
+            "Email or password is incorrect! Please check and try again."
+          );
+        } else {
+          throw new Error(
+            "Looks like you don't have an account yet! Sign up instead!"
+          );
         }
       },
     }),
-    // Passwordless / email sign in
-    // EmailProvider({
-    //   server: process.env.MAIL_SERVER,
-    //   from: "NextAuth.js <no-reply@example.com>",
-    // }),
   ],
   session: {
     strategy: "jwt",
@@ -97,13 +102,68 @@ export default NextAuth({
   },
   callbacks: {
     signIn: async ({ user, account, profile, email, credentials }) => {
-      return true;
+      try {
+        console.log("signIn 1");
+        const {
+          data: { users_authProvider = [] },
+        } = await apolloClient.query({
+          query: GET_AUTH_PROVIDER_DETAILS,
+          variables: {
+            where: {
+              providerAccountId: { _eq: user.id },
+            },
+          },
+        });
+        console.log("signIn 2");
+        if (users_authProvider.length > 0) {
+          console.log("signIn 3");
+          return true;
+        }
+        console.log("signIn 4");
+        let customer = {};
+        if (account.type === "oauth") {
+          console.log("signIn 5");
+          customer.name = user.name;
+          customer.email = user.email;
+          customer.avatar = user.image;
+        }
+        console.log("signIn 6");
+        await apolloClient.mutate({
+          mutation: CREATE_AUTH_PROVIDER_USER,
+          variables: {
+            object: {
+              providerType: account.type,
+              providerAccountId: user.id || null,
+              provider: account.provider || account.id || "credentials",
+              ...(account.type === "credentials" && {
+                userId: user.id,
+              }),
+              ...(Object.keys(customer).length > 0 && {
+                user: {
+                  data: customer,
+                  on_conflict: {
+                    update_columns: [],
+                    constraint: "users_email_key",
+                  },
+                },
+              }),
+            },
+          },
+        });
+        console.log("signIn 7");
+        return true;
+      } catch (error) {
+        console.log(error);
+        return false;
+      }
     },
     jwt: async ({ token, user, account, profile, isNewUser }) => {
       const ifUserSignedIn = user ? true : false;
       if (ifUserSignedIn) {
-        token.id = user.id.toString();
+        console.log("User signed in!", user);
+        token.id = user.id;
         token.auth_time = Math.floor(Date.now() / 1000);
+        token.accountType = account.type;
       }
       return Promise.resolve(token);
     },
@@ -111,8 +171,32 @@ export default NextAuth({
       const encodedToken = sign(token, process.env.SECRET, {
         algorithm: "HS256",
       });
-      session.id = token.id.toString();
-      session.token = encodedToken;
+      const { sub: id, accountType } = token;
+      console.log("session callback", session, token);
+
+      const {
+        data: { users_authProvider = [] },
+      } = await apolloClient.query({
+        query: GET_AUTH_PROVIDER_DETAILS,
+        variables: {
+          where: {
+            ...(accountType === "credentials" && {
+              userId: { _eq: id },
+            }),
+            ...(accountType === "oauth" && {
+              providerAccountId: { _eq: id },
+            }),
+          },
+        },
+      });
+      if (users_authProvider.length > 0) {
+        const [authUser] = users_authProvider;
+        session.id = token.id;
+        session.user.email = authUser.user.email;
+        session.user.id = authUser.userId;
+        session.user.name = authUser.user.name;
+        session.token = encodedToken;
+      }
       return Promise.resolve(session);
     },
   },
