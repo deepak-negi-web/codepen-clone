@@ -46,7 +46,7 @@ function EditorPage() {
     UPDATE_WORK_FILE,
     {
       onCompleted: (data) => {
-        console.log(data);
+        console.log("updated successfully");
       },
       onError: (error) => {
         console.error(error);

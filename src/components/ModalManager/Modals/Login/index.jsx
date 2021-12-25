@@ -55,7 +55,6 @@ const Login = ({ closeFn = () => null, open = false }) => {
           closeModalHandler();
         }
       } else if (type === "signup") {
-        console.log(type, values);
         const options = {
           url: isClient ? `${window.location.origin}/api/register` : "",
           method: "POST",

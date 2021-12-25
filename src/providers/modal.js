@@ -21,7 +21,6 @@ export const ModalProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const openModal = (modal = null) => {
-    console.log("openModal", modal);
     if (modal) {
       dispatch({ type: "OPEN_MODAL", payload: modal });
     }

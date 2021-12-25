@@ -8,7 +8,6 @@ import { Header, Footer, ModalManager } from "../components";
 import { ModalProvider, useApollo } from "../providers";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
-  console.log(pageProps);
   const apolloClient = useApollo(pageProps.initialApolloState);
   return (
     <SessionProvider session={session}>

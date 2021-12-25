@@ -14,10 +14,6 @@ const SignupComp = ({
     await handleSubmit("signup", values);
   };
 
-  const onFinishFailed = (errorInfo) => {
-    console.log("Failed:", errorInfo);
-  };
-
   return (
     <Form
       name="normal_signup"

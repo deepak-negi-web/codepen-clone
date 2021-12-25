@@ -103,7 +103,6 @@ export default NextAuth({
   callbacks: {
     signIn: async ({ user, account, profile, email, credentials }) => {
       try {
-        console.log("signIn 1");
         const {
           data: { users_authProvider = [] },
         } = await apolloClient.query({
@@ -114,20 +113,15 @@ export default NextAuth({
             },
           },
         });
-        console.log("signIn 2");
         if (users_authProvider.length > 0) {
-          console.log("signIn 3");
           return true;
         }
-        console.log("signIn 4");
         let customer = {};
         if (account.type === "oauth") {
-          console.log("signIn 5");
           customer.name = user.name;
           customer.email = user.email;
           customer.avatar = user.image;
         }
-        console.log("signIn 6");
         await apolloClient.mutate({
           mutation: CREATE_AUTH_PROVIDER_USER,
           variables: {
@@ -150,17 +144,15 @@ export default NextAuth({
             },
           },
         });
-        console.log("signIn 7");
         return true;
       } catch (error) {
-        console.log(error);
+        console.error(error);
         return false;
       }
     },
     jwt: async ({ token, user, account, profile, isNewUser }) => {
       const ifUserSignedIn = user ? true : false;
       if (ifUserSignedIn) {
-        console.log("User signed in!", user);
         token.id = user.id;
         token.auth_time = Math.floor(Date.now() / 1000);
         token.accountType = account.type;
@@ -172,7 +164,6 @@ export default NextAuth({
         algorithm: "HS256",
       });
       const { sub: id, accountType } = token;
-      console.log("session callback", session, token);
 
       const {
         data: { users_authProvider = [] },

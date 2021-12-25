@@ -15,10 +15,6 @@ const LoginComp = ({
     await handleSubmit("login", values);
   };
 
-  const onFinishFailed = (errorInfo) => {
-    console.log("Failed:", errorInfo);
-  };
-
   return (
     <Form
       name="normal_login"

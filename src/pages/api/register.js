@@ -19,7 +19,6 @@ export default async function handler(req, res) {
       },
     });
 
-    // console.log({ insertCustomer })
     if (createdUser && createdUser.id) {
       return res
         .status(200)

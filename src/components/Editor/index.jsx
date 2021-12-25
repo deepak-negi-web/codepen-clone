@@ -32,7 +32,6 @@ function EditorComp(props) {
     if (status !== "authenticated") {
       openModal("login");
     } else {
-      console.log("save", editor);
       await onSaveHandler();
     }
   };

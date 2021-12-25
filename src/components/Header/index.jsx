@@ -17,7 +17,6 @@ function HeaderComp() {
   const router = useRouter();
   const { openModal } = useModal();
   const { data: session, status } = useSession();
-  console.log("session", session);
   const handleClick = ({ key }) => {
     if (key === "logout") {
       signOut();
