@@ -4,11 +4,12 @@ import Split from "react-split";
 import { useMutation, useQuery } from "@apollo/client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import toast from "react-hot-toast";
 
 import { Editor, Loader } from "../../components";
 import useLocalStorage from "../../customHooks/useLocalStorage";
 import { getSourceDoc } from "../../utils";
-import { CREATE_WORK, GET_WORK_DETAILS, UPDATE_WORK_FILE } from "../../graphql";
+import { GET_WORKS, GET_WORK_DETAILS, UPDATE_WORK_FILE } from "../../graphql";
 
 function EditorPage() {
   const { status, data: session } = useSession();
@@ -42,6 +43,7 @@ function EditorPage() {
   const [updateWorkFile, { loading: isUpdatingWorkFile }] = useMutation(
     UPDATE_WORK_FILE,
     {
+      refetchQueries: ["GET_WORKS"],
       onCompleted: (data) => {
         console.log("updated successfully");
       },
@@ -51,60 +53,72 @@ function EditorPage() {
     }
   );
 
-  const createUserWorkHandler = async () => {
-    await Promise.all(
-      ["html", "css", "js"].map(async (data) => {
-        updateWorkFile({
-          variables: {
-            where: {
-              workId: {
-                _eq: router.query.workId,
+  const updateUserWorkHandler = async () => {
+    toast.promise(
+      Promise.all(
+        ["html", "css", "js"].map(async (data) => {
+          updateWorkFile({
+            variables: {
+              where: {
+                workId: {
+                  _eq: router.query.workId,
+                },
+                type: {
+                  _eq: data,
+                },
               },
-              type: {
-                _eq: data,
+              _set: {
+                content:
+                  data === "html"
+                    ? html
+                    : data === "css"
+                    ? css
+                    : data === "js"
+                    ? js
+                    : "",
               },
             },
-            _set: {
-              content:
-                data === "html"
-                  ? html
-                  : data === "css"
-                  ? css
-                  : data === "js"
-                  ? js
-                  : "",
+            optimisticResponse: true,
+            update: (cache) => {
+              const existingWorks = cache.readQuery({ query: GET_WORKS });
+              const updatedWorks = existingWorks.works.map((w) => {
+                if (w.id === router.query.workId) {
+                  return {
+                    ...w,
+                    files: w.files.map((file) => {
+                      return {
+                        ...file,
+                        content:
+                          file.type === data
+                            ? data === "html"
+                              ? html
+                              : data === "css"
+                              ? css
+                              : data === "js"
+                              ? js
+                              : ""
+                            : file.content,
+                      };
+                    }),
+                  };
+                } else {
+                  return w;
+                }
+              });
+              cache.writeQuery({
+                query: GET_WORKS,
+                data: { works: updatedWorks },
+              });
             },
-          },
-        });
-      })
+          });
+        })
+      ),
+      {
+        loading: "Updating work...",
+        success: "Work updated successfully!",
+        error: "Error updating work!",
+      }
     );
-
-    // if (status === "authenticated" && session.user) {
-    //   await createWork({
-    //     variables: {
-    //       object: {
-    //         label: `Work-${new Date().getTime()}`,
-    //         userId: session?.user?.id,
-    //         files: {
-    //           data: [
-    //             {
-    //               type: "html",
-    //               content: html,
-    //             },
-    //             {
-    //               type: "css",
-    //               content: css,
-    //             },
-    //             {
-    //               type: "js",
-    //               content: js,
-    //             },
-    //           ],
-    //         },
-    //       },
-    //     },
-    //   });
-    // }
   };
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -124,7 +138,7 @@ function EditorPage() {
           language="xml"
           onChange={setHtml}
           onCollapsed={() => setCollapsedIndex(0)}
-          onSaveHandler={createUserWorkHandler}
+          onSaveHandler={updateUserWorkHandler}
         />
         <Editor
           title="CSS"
@@ -132,7 +146,7 @@ function EditorPage() {
           language="css"
           onChange={setCss}
           onCollapsed={() => setCollapsedIndex(1)}
-          onSaveHandler={createUserWorkHandler}
+          onSaveHandler={updateUserWorkHandler}
         />
         <Editor
           title="JS"

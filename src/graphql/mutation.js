@@ -50,3 +50,13 @@ export const UPDATE_WORK_FILE = gql`
     }
   }
 `;
+
+export const DELETE_WORK = gql`
+  mutation DELETE_WORK($id: uuid!) {
+    deleteWork: delete_workspace_works_by_pk(id: $id) {
+      id
+      userId
+      label
+    }
+  }
+`;

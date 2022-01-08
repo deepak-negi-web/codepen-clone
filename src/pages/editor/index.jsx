@@ -4,11 +4,12 @@ import Split from "react-split";
 import { useMutation } from "@apollo/client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import toast from "react-hot-toast";
 
 import { Editor, Loader } from "../../components";
 import useLocalStorage from "../../customHooks/useLocalStorage";
 import { getSourceDoc } from "../../utils";
-import { CREATE_WORK } from "../../graphql";
+import { CREATE_WORK, GET_WORKS } from "../../graphql";
 
 function EditorPage() {
   const router = useRouter();
@@ -31,30 +32,69 @@ function EditorPage() {
 
   const createUserWorkHandler = async () => {
     if (status === "authenticated" && session.user) {
-      await createWork({
-        variables: {
-          object: {
-            label: `Work-${new Date().getTime()}`,
-            userId: session?.user?.id,
-            files: {
-              data: [
-                {
-                  type: "html",
-                  content: html,
-                },
-                {
-                  type: "css",
-                  content: css,
-                },
-                {
-                  type: "js",
-                  content: js,
-                },
-              ],
+      toast.promise(
+        createWork({
+          variables: {
+            object: {
+              label: `Work-${new Date().getTime()}`,
+              userId: session?.user?.id,
+              files: {
+                data: [
+                  {
+                    type: "html",
+                    content: html,
+                  },
+                  {
+                    type: "css",
+                    content: css,
+                  },
+                  {
+                    type: "js",
+                    content: js,
+                  },
+                ],
+              },
             },
           },
-        },
-      });
+          optimisticResponse: true,
+          update: (cache) => {
+            const existingWorks = cache.readQuery({ query: GET_WORKS });
+            const newWork = {
+              id: `id-${new Date().getTime()}`,
+              label: `Work-${new Date().getTime()}`,
+              userId: session?.user?.id,
+              files: {
+                data: [
+                  {
+                    id: `file1-${new Date().getTime()}`,
+                    type: "html",
+                    content: html,
+                  },
+                  {
+                    id: `file2-${new Date().getTime()}`,
+                    type: "css",
+                    content: css,
+                  },
+                  {
+                    id: `file2-${new Date().getTime()}`,
+                    type: "js",
+                    content: js,
+                  },
+                ],
+              },
+            };
+            cache.writeQuery({
+              query: GET_WORKS,
+              data: { works: [...existingWorks.works, newWork] },
+            });
+          },
+        }),
+        {
+          loading: "Creating work...",
+          success: "Work created successfully",
+          error: "Error creating work",
+        }
+      );
     }
   };
 
@@ -65,8 +105,6 @@ function EditorPage() {
     }, 250);
     return () => clearTimeout(timeout);
   }, [html, css, js]);
-
-  if (isCreatingWork) return <Loader />;
 
   return (
     <Wrapper direction="vertical">

@@ -6,11 +6,15 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import ReactHtmlParser from "react-html-parser";
 import { BiExpand } from "react-icons/bi";
+import { AiOutlineDelete } from "react-icons/ai";
+import toast from "react-hot-toast";
+import { Result, Button, Popconfirm } from "antd";
 
 import { Loader } from "../../components";
 import useLocalStorage from "../../customHooks/useLocalStorage";
 import { getSourceDoc } from "../../utils";
-import { GET_WORKS } from "../../graphql";
+import { GET_WORKS, DELETE_WORK } from "../../graphql";
+
 export default function Dashboard() {
   const router = useRouter();
   const [works, setWorks] = useState([]);
@@ -28,6 +32,8 @@ export default function Dashboard() {
           };
         });
         setWorks(updatedWork);
+      } else {
+        setWorks([]);
       }
       setIsLoadingWorks(false);
     },
@@ -36,24 +42,67 @@ export default function Dashboard() {
       console.error(error);
     },
   });
+
+  const [deleteHandler] = useMutation(DELETE_WORK, {
+    onCompleted: ({ deleteWork }) => {
+      toast.success(`Work ${deleteWork.label} deleted`);
+      console.log(deleteWork);
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+  });
+
+  const deleteWorkHandler = (workId) => {
+    deleteHandler({
+      variables: {
+        id: workId,
+      },
+      optimisticResponse: true,
+      update: (cache) => {
+        const existingWorks = cache.readQuery({ query: GET_WORKS });
+        console.log("existing works", existingWorks);
+        const newWorks = existingWorks.works.filter((w) => w.id !== workId);
+        console.log("filtered works", newWorks);
+        cache.writeQuery({
+          query: GET_WORKS,
+          data: { works: newWorks },
+        });
+      },
+    });
+  };
   if (isLoadingWorks) return <Loader />;
   return (
-    <div tw="w-full height[100% - 128px] p-8">
+    <Wrapper>
       <h1 tw="text-4xl mb-8 text-white text-center ml-auto mr-auto width[100%]">
-        My works
+        Dashboard
       </h1>
-      <div tw="grid grid-template-columns[repeat(auto-fill, minmax(300px, 1fr))] gap-20 md:(grid-template-columns[repeat(auto-fill, minmax(320px, 1fr))])">
-        {works.map((work) => {
-          return (
-            <Card
-              key={work.id}
-              work={work}
-              onClick={() => router.push(`/editor/${work.id}`)}
-            />
-          );
-        })}
-      </div>
-    </div>
+      {works.length > 0 ? (
+        <div tw="grid grid-template-columns[repeat(auto-fill, minmax(300px, 1fr))] gap-20 md:(grid-template-columns[repeat(auto-fill, minmax(320px, 1fr))])">
+          {works.map((work) => {
+            return (
+              <Card
+                key={work.id}
+                work={work}
+                onClick={() => router.push(`/editor/${work.id}`)}
+                onDelete={() => deleteWorkHandler(work.id)}
+              />
+            );
+          })}
+        </div>
+      ) : (
+        <Result
+          status="404"
+          title="No work added yet"
+          subTitle="Sorry, you haven't added any work yet, goto editor to add a new work"
+          extra={
+            <Button type="primary" onClick={() => router.push("/editor")}>
+              Goto Editor
+            </Button>
+          }
+        />
+      )}
+    </Wrapper>
   );
 }
 
@@ -63,7 +112,20 @@ const Card = ({ work = null, ...props }) => (
       {ReactHtmlParser(work.showContent)}
     </div>
     <div tw="h-1/3 p-4">
-      <h2 tw="text-lg text-white">{work.label}</h2>
+      <div tw="flex justify-between items-center">
+        <h2 tw="text-lg text-white">{work.label}</h2>
+        <Popconfirm
+          title="Are you sure to delete this work?"
+          onConfirm={props.onDelete}
+          // onCancel={cancel}
+          okText="Yes"
+          cancelText="No"
+        >
+          <span>
+            <AiOutlineDelete size={24} color="#fff" />
+          </span>
+        </Popconfirm>
+      </div>
     </div>
     <span
       onClick={props.onClick}
@@ -73,3 +135,8 @@ const Card = ({ work = null, ...props }) => (
     </span>
   </div>
 );
+
+const Wrapper = tw.div`
+w-full height[100% - 128px] p-8
+[.ant-result>.ant-result-title,.ant-result>.ant-result-subtitle]:(text-white)
+`;
