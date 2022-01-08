@@ -5,7 +5,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
-import { Editor } from "../../components";
+import { Editor, Loader } from "../../components";
 import useLocalStorage from "../../customHooks/useLocalStorage";
 import { getSourceDoc } from "../../utils";
 import { CREATE_WORK, GET_WORK_DETAILS, UPDATE_WORK_FILE } from "../../graphql";
@@ -22,24 +22,21 @@ function EditorPage() {
   const [collapsedIndex, setCollapsedIndex] = useState(null);
 
   // query for getting work details
-  const { loading: isLoadingWorkDetails, error: hasErrorOnWorkDetails } =
-    useQuery(GET_WORK_DETAILS, {
-      variables: {
-        id: router.query.workId,
-      },
-      onCompleted: ({ workDetails }) => {
-        if (Object.keys(workDetails).length > 0) {
-          setHtml(
-            workDetails.files.find((file) => file.type === "html").content
-          );
-          setCss(workDetails.files.find((file) => file.type === "css").content);
-          setJs(workDetails.files.find((file) => file.type === "js").content);
-        }
-      },
-      onError: (error) => {
-        console.error(error);
-      },
-    });
+  const { loading: isLoadingWorkDetails } = useQuery(GET_WORK_DETAILS, {
+    variables: {
+      id: router.query.workId,
+    },
+    onCompleted: ({ workDetails }) => {
+      if (Object.keys(workDetails).length > 0) {
+        setHtml(workDetails.files.find((file) => file.type === "html").content);
+        setCss(workDetails.files.find((file) => file.type === "css").content);
+        setJs(workDetails.files.find((file) => file.type === "js").content);
+      }
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+  });
 
   // update work files mutation
   const [updateWorkFile, { loading: isUpdatingWorkFile }] = useMutation(
@@ -116,6 +113,8 @@ function EditorPage() {
     }, 250);
     return () => clearTimeout(timeout);
   }, [html, css, js]);
+
+  if (isLoadingWorkDetails) return <Loader />;
   return (
     <Wrapper direction="vertical">
       <TopPane collapsed={collapsedIndex}>

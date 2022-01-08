@@ -21,6 +21,7 @@ function HeaderComp() {
     if (key === "logout") {
       signOut();
     }
+    router.push(key);
   };
 
   return (
@@ -60,7 +61,7 @@ function HeaderComp() {
           </Button>
         ) : (
           <div tw="flex items-center">
-            <h2 tw="text-white font-semibold text-lg">
+            <h2 tw="text-white font-semibold text-lg hidden md:(block)">
               Hi {session?.user?.name}
             </h2>
             <Menu
@@ -90,7 +91,7 @@ function HeaderComp() {
                   borderRadius: "50%",
                 }}
               >
-                <Menu.Item key="setting:1">
+                <Menu.Item key="/dashboard">
                   <span tw="flex items-center">
                     <MdDashboardCustomize
                       size="24"

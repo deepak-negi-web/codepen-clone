@@ -1,6 +1,7 @@
 import tw from "twin.macro";
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { SiHtml5, SiCss3, SiJavascript } from "react-icons/si";
 
 function Home() {
@@ -39,20 +40,35 @@ function Home() {
         <br />
         <br />
       </p>
-      <h1
-        className="gradient-text-2"
-        tw="text-3xl font-extrabold text-white text-left inline-block"
-      >
-        Features coming soon :
-      </h1>
-      <ul className="feature-list">
-        <li>Separate Dashboard where you can find all of your template</li>
-        <li>Support For Template engines like pug/ejs</li>
-        <li>Make your own template and share them with the world</li>
-        <li>Make your template as Public or Private templates</li>
-        <li>Download your and other public template</li>
-        <li>Private template store</li>
-      </ul>
+      <div tw="flex flex-col mt-8 items-center md:(flex-row)">
+        <div tw="w-full md:(w-1/2) height[360px] md:(height[480px]) relative">
+          <Image
+            src="/images/coding.jpg"
+            alt="coding illustration"
+            // width={780}
+            // height={420}
+            layout="fill"
+            objectFit="cover"
+            tw="rounded-md"
+          />
+        </div>
+        <div tw="h-full md:(height[480px]) ml-0 mt-8 md:(ml-16 )">
+          <h1
+            className="gradient-text-2"
+            tw="text-3xl font-extrabold text-white text-left inline-block"
+          >
+            Features coming soon :
+          </h1>
+          <ul className="feature-list">
+            <li>Separate Dashboard where you can find all of your template</li>
+            <li>Support For Template engines like pug/ejs</li>
+            <li>Make your own template and share them with the world</li>
+            <li>Make your template as Public or Private templates</li>
+            <li>Download your and other public template</li>
+            <li>Private template store</li>
+          </ul>
+        </div>
+      </div>
     </Wrapper>
   );
 }
@@ -61,7 +77,7 @@ export default Home;
 
 const Wrapper = tw.div`
 p-8
-height[calc(100vh - 128px)]
+height[calc(100% - 128px)]
 sm:p-16
 [.para]:(text-xl mt-4 text-white text-justify ml-auto mr-auto width[100%])
 [.feature-list]:(m-4  text-white text-justify ml-auto mr-auto width[94%] list-disc)

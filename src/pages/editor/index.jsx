@@ -5,7 +5,7 @@ import { useMutation } from "@apollo/client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
-import { Editor } from "../../components";
+import { Editor, Loader } from "../../components";
 import useLocalStorage from "../../customHooks/useLocalStorage";
 import { getSourceDoc } from "../../utils";
 import { CREATE_WORK } from "../../graphql";
@@ -20,7 +20,7 @@ function EditorPage() {
   const [collapsedIndex, setCollapsedIndex] = useState(null);
   const { status, data: session } = useSession();
   // create work mutation
-  const [createWork, { loading }] = useMutation(CREATE_WORK, {
+  const [createWork, { loading: isCreatingWork }] = useMutation(CREATE_WORK, {
     onCompleted: ({ createdWork }) => {
       router.push(`/editor/${createdWork.id}`);
     },
@@ -57,6 +57,7 @@ function EditorPage() {
       });
     }
   };
+
   useEffect(() => {
     const timeout = setTimeout(() => {
       const result = getSourceDoc({ html, css, js });
@@ -64,6 +65,9 @@ function EditorPage() {
     }, 250);
     return () => clearTimeout(timeout);
   }, [html, css, js]);
+
+  if (isCreatingWork) return <Loader />;
+
   return (
     <Wrapper direction="vertical">
       <TopPane collapsed={collapsedIndex}>

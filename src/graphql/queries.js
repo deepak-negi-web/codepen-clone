@@ -43,3 +43,18 @@ export const GET_WORK_DETAILS = gql`
     }
   }
 `;
+export const GET_WORKS = gql`
+  query GET_WORKS {
+    works: workspace_works {
+      id
+      label
+      isPublished
+      files {
+        cdnUrl
+        content
+        id
+        type
+      }
+    }
+  }
+`;
