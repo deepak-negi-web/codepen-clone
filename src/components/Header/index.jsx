@@ -20,8 +20,9 @@ function HeaderComp() {
   const handleClick = ({ key }) => {
     if (key === "logout") {
       signOut();
+    } else {
+      router.push(key);
     }
-    router.push(key);
   };
 
   return (
