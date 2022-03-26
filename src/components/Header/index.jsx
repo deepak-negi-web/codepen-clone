@@ -11,12 +11,16 @@ import { useSession, signOut } from "next-auth/react";
 import Avatar from "react-avatar";
 
 import { Header } from "./styled";
-import { useModal } from "../../providers";
+import { useModal, useEditorConfig } from "../../providers";
 
 function HeaderComp() {
   const router = useRouter();
   const { openModal } = useModal();
+  const { showSaveButton, isSaving, setShowSaveButton, saveUserWorkHandler } =
+    useEditorConfig();
   const { data: session, status } = useSession();
+
+  // handler for the menu in the header
   const handleClick = ({ key }) => {
     if (key === "logout") {
       signOut();
@@ -24,6 +28,15 @@ function HeaderComp() {
       router.push(key);
     }
   };
+
+  // show the save button only on the editor page
+  React.useEffect(() => {
+    if (router.pathname.includes("editor")) {
+      setShowSaveButton(true);
+    } else {
+      setShowSaveButton(false);
+    }
+  }, [router.pathname]);
 
   return (
     <Header>
@@ -51,6 +64,16 @@ function HeaderComp() {
         </Menu>
       </div>
       <div tw="flex items-center">
+        {showSaveButton && (
+          <Button
+            type="primary"
+            size="large"
+            className="save_button"
+            onClick={async () => await saveUserWorkHandler()}
+          >
+            {isSaving ? "Saving" : "Save"}
+          </Button>
+        )}
         {status !== "authenticated" ? (
           <Button
             type="primary"

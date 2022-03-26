@@ -7,7 +7,7 @@ import { ApolloProvider } from "@apollo/client";
 import { Toaster } from "react-hot-toast";
 
 import { Header, Footer, ModalManager } from "../components";
-import { ModalProvider, useApollo } from "../providers";
+import { ModalProvider, useApollo, EditorConfigProvider } from "../providers";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   const apolloClient = useApollo(pageProps.initialApolloState);
@@ -16,11 +16,13 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
       <ApolloProvider client={apolloClient}>
         <Toaster />
         <ModalProvider>
-          <GlobalStyles />
-          <ModalManager />
-          <Header />
-          <Component {...pageProps} />
-          <Footer />
+          <EditorConfigProvider>
+            <GlobalStyles />
+            <ModalManager />
+            <Header />
+            <Component {...pageProps} />
+            <Footer />
+          </EditorConfigProvider>
         </ModalProvider>
       </ApolloProvider>
     </SessionProvider>
