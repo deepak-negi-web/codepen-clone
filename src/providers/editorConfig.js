@@ -67,9 +67,11 @@ export const EditorConfigProvider = ({ children }) => {
     {
       refetchQueries: ["GET_WORKS"],
       onCompleted: (data) => {
+        setSaving(false);
         console.log("updated successfully");
       },
       onError: (error) => {
+        setSaving(false);
         console.error(error);
       },
     }
