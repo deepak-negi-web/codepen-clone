@@ -13,7 +13,8 @@ import { useEditorConfig } from "../../providers";
 function EditorPage() {
   const router = useRouter();
   const workId = router.query.workId || [];
-  const { editor, setEditorContent, saveUserWorkHandler } = useEditorConfig();
+  const { editor, setEditorContent, saveUserWorkHandler, editWorkName } =
+    useEditorConfig();
   const [collapsedIndex, setCollapsedIndex] = useState(null);
   const { loading: isLoadingWorkDetails } = useQuery(GET_WORK_DETAILS, {
     skip: workId.length === 0,
@@ -22,6 +23,7 @@ function EditorPage() {
     },
     onCompleted: ({ workDetails }) => {
       if (Object.keys(workDetails).length > 0) {
+        editWorkName(workDetails.label);
         setEditorContent({
           html: workDetails.files.find((file) => file.type === "html").content,
           css: workDetails.files.find((file) => file.type === "css").content,
@@ -43,6 +45,7 @@ function EditorPage() {
         js: "",
         workId: "",
       });
+      editWorkName("");
     }
   }, [router.query.workId]);
 
