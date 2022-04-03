@@ -10,7 +10,12 @@ import { useRouter } from "next/router";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 
-import { CREATE_WORK, GET_WORKS, UPDATE_WORK_FILE } from "../graphql";
+import {
+  CREATE_WORK,
+  GET_WORKS,
+  UPDATE_WORK_FILE,
+  UPDATE_WORK,
+} from "../graphql";
 import { getSourceDoc } from "../utils";
 import { useModal } from "../providers";
 
@@ -24,6 +29,8 @@ const initialState = {
     srcDoc: "",
     workId: "",
   },
+  currentWorkName: "",
+  isEditingWorkName: false,
   isSaving: false,
   showSaveButton: false,
   savingFunction: () => console.log("default saving function"),
@@ -38,6 +45,10 @@ const reducer = (state, action) => {
       return { ...state, showSaveButton: action.payload };
     case "SET_EDITOR_CONTENT":
       return { ...state, editor: { ...state.editor, ...action.payload } };
+    case "EDIT_WORK_NAME":
+      return { ...state, currentWorkName: action.payload };
+    case "SET_IS_EDITING_WORK_NAME":
+      return { ...state, isEditingWorkName: action.payload };
     default:
       return state;
   }
@@ -54,6 +65,7 @@ export const EditorConfigProvider = ({ children }) => {
     onCompleted: ({ createdWork }) => {
       setSaving(false);
       router.push(`/editor/${createdWork.id}`);
+      dispatch({ type: "EDIT_WORK_NAME", payload: createdWork.label });
     },
     onError: (error) => {
       setSaving(false);
@@ -76,6 +88,29 @@ export const EditorConfigProvider = ({ children }) => {
       },
     }
   );
+
+  const [updateWork, { loading: isUpdatingWork }] = useMutation(UPDATE_WORK, {
+    onCompleted: ({ updatedWork }) => {
+      setIsEditingWorkName(false);
+      dispatch({ type: "EDIT_WORK_NAME", payload: updatedWork.label });
+      console.log("updated successfully");
+    },
+    onError: (error) => {
+      setIsEditingWorkName(false);
+      console.error(error);
+    },
+  });
+
+  const updateWorkHandler = async (data = {}) => {
+    if (status === "authenticated" && session.user && state.editor.workId) {
+      await updateWork({
+        variables: {
+          id: state.editor.workId,
+          _set: data,
+        },
+      });
+    }
+  };
 
   const saveUserWorkHandler = async () => {
     if (status === "authenticated" && session.user) {
@@ -151,7 +186,7 @@ export const EditorConfigProvider = ({ children }) => {
           createWork({
             variables: {
               object: {
-                label: `Work-${new Date().getTime()}`,
+                label: state.currentWorkName || `Work-${new Date().getTime()}`,
                 userId: session?.user?.id,
                 files: {
                   data: [
@@ -227,6 +262,13 @@ export const EditorConfigProvider = ({ children }) => {
     dispatch({ type: "SET_EDITOR_CONTENT", payload: content });
   };
 
+  const editWorkName = (name) => {
+    dispatch({ type: "EDIT_WORK_NAME", payload: name });
+  };
+  const setIsEditingWorkName = (data) => {
+    dispatch({ type: "SET_IS_EDITING_WORK_NAME", payload: data });
+  };
+
   useEffect(() => {
     const timeout = setTimeout(() => {
       const result = getSourceDoc({
@@ -247,6 +289,9 @@ export const EditorConfigProvider = ({ children }) => {
         setShowSaveButton,
         setEditorContent,
         saveUserWorkHandler,
+        updateWorkHandler,
+        editWorkName,
+        setIsEditingWorkName,
       }}
     >
       {children}
@@ -262,10 +307,15 @@ export const useEditorConfig = () => {
     editor: context.state.editor,
     isSaving: context.state.isSaving,
     showSaveButton: context.state.showSaveButton,
+    currentWorkName: context.state.currentWorkName,
+    isEditingWorkName: context.state.isEditingWorkName,
     savingFunction: context.state.savingFunction,
     setSaving: context.setSaving,
     setShowSaveButton: context.setShowSaveButton,
     setEditorContent: context.setEditorContent,
     saveUserWorkHandler: context.saveUserWorkHandler,
+    updateWorkHandler: context.updateWorkHandler,
+    editWorkName: context.editWorkName,
+    setIsEditingWorkName: context.setIsEditingWorkName,
   };
 };

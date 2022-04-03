@@ -3,7 +3,7 @@ import tw from "twin.macro";
 import { FaUserAstronaut } from "react-icons/fa";
 import { HiOutlineLogout } from "react-icons/hi";
 import { RiUserSettingsFill } from "react-icons/ri";
-import { MdDashboardCustomize } from "react-icons/md";
+import { MdDashboardCustomize, MdOutlineModeEditOutline } from "react-icons/md";
 import { Menu, Button } from "antd";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -16,8 +16,17 @@ import { useModal, useEditorConfig } from "../../providers";
 function HeaderComp() {
   const router = useRouter();
   const { openModal } = useModal();
-  const { showSaveButton, isSaving, setShowSaveButton, saveUserWorkHandler } =
-    useEditorConfig();
+  const {
+    showSaveButton,
+    isSaving,
+    isEditingWorkName,
+    setShowSaveButton,
+    saveUserWorkHandler,
+    updateWorkHandler,
+    setIsEditingWorkName,
+    editWorkName,
+    currentWorkName,
+  } = useEditorConfig();
   const { data: session, status } = useSession();
 
   // handler for the menu in the header
@@ -27,6 +36,17 @@ function HeaderComp() {
     } else {
       router.push(key);
     }
+  };
+
+  const onEditSave = () => {
+    setIsEditingWorkName(false);
+    updateWorkHandler({
+      label: currentWorkName,
+    });
+  };
+
+  const onEditButtonClickHandler = () => {
+    setIsEditingWorkName(true);
   };
 
   // show the save button only on the editor page
@@ -40,7 +60,7 @@ function HeaderComp() {
 
   return (
     <Header>
-      <div tw="flex items-center w-full justify-between sm:(justify-items-start w-auto)">
+      <div tw=" flex items-center w-full justify-between sm:(justify-items-start w-auto)">
         <Link href="/">
           <a
             className="gradient-text-2"
@@ -63,6 +83,37 @@ function HeaderComp() {
           </Menu.Item>
         </Menu>
       </div>
+      {showSaveButton && (
+        <div className="group" tw="flex flex-1 items-center justify-center">
+          {isEditingWorkName ? (
+            <input
+              type="text"
+              value={currentWorkName}
+              autoFocus={true}
+              onChange={(e) => editWorkName(e.target.value)}
+              tw="p-1 w-max bg-transparent text-white font-bold truncate outline-none"
+              onBlur={onEditSave}
+              onKeyUp={(e) => {
+                if (e.key === "Enter") {
+                  onEditSave();
+                }
+              }}
+            />
+          ) : (
+            <span tw="text-white font-bold truncate">
+              {currentWorkName || "Untitled"}
+            </span>
+          )}
+          {!isEditingWorkName && (
+            <MdOutlineModeEditOutline
+              size="18"
+              color="#fff"
+              tw="ml-2 group-hover:( cursor-pointer animation[shake 0.97s cubic-bezier(0.36, 0.07, 0.19, 0.97) both]) "
+              onClick={onEditButtonClickHandler}
+            />
+          )}
+        </div>
+      )}
       <div tw="flex items-center">
         {showSaveButton && (
           <Button
