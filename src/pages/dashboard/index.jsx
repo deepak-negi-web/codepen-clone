@@ -9,10 +9,11 @@ import { BiExpand } from "react-icons/bi";
 import { AiOutlineDelete } from "react-icons/ai";
 import toast from "react-hot-toast";
 import { Result, Button, Popconfirm } from "antd";
+import axios from "axios";
 
 import { Loader } from "../../components";
 import useLocalStorage from "../../customHooks/useLocalStorage";
-import { getSourceDoc } from "../../utils";
+import { getSourceDoc, getHtmlImage } from "../../utils";
 import { GET_WORKS, DELETE_WORK } from "../../graphql";
 
 export default function Dashboard() {
@@ -20,17 +21,10 @@ export default function Dashboard() {
   const [works, setWorks] = useState([]);
   const [isLoadingWorks, setIsLoadingWorks] = useState(true);
   useQuery(GET_WORKS, {
-    onCompleted: ({ works: userWorks }) => {
+    onCompleted: async ({ works: userWorks }) => {
       if (userWorks.length > 0) {
-        const updatedWork = userWorks.map((uw) => {
-          const html = uw.files.find((file) => file.type === "html").content;
-          const css = uw.files.find((file) => file.type === "css").content;
-          const js = uw.files.find((file) => file.type === "js").content;
-          return {
-            ...uw,
-            showContent: `<style>${css}</style>${html}<script>${js}</script>`,
-          };
-        });
+        let updatedWork = userWorks;
+        updatedWork = await getHtmlImage(userWorks);
         setWorks(updatedWork);
       } else {
         setWorks([]);
@@ -71,6 +65,11 @@ export default function Dashboard() {
       },
     });
   };
+
+  const htmlToImageHandler = async () => {
+    const { data } = await axios.get("/api/htmlToImage");
+    console.log(data);
+  };
   if (isLoadingWorks) return <Loader />;
   return (
     <Wrapper>
@@ -109,7 +108,9 @@ export default function Dashboard() {
 const Card = ({ work = null, ...props }) => (
   <div tw="width[350px] height[300px] md:(width[400px] height[320px]) rounded-md background[var(--secondary-background)] overflow-hidden relative hover:(cursor-pointer)">
     <div tw="bg-white w-full h-2/3 rounded-md overflow-hidden">
-      {ReactHtmlParser(work.showContent)}
+      {work.showContentImg && (
+        <img src={`data:image/png;base64,${work.showContentImg}`} alt="" />
+      )}
     </div>
     <div tw="h-1/3 p-4">
       <div tw="flex justify-between items-center">
