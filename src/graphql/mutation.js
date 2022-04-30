@@ -60,12 +60,3 @@ export const DELETE_WORK = gql`
     }
   }
 `;
-
-export const UPDATE_WORK = gql`
-  mutation UPDATE_WORK($id: uuid!, $_set: workspace_works_set_input!) {
-    update_workspace_works_by_pk(pk_columns: { id: $id }, _set: $_set) {
-      label
-      id
-    }
-  }
-`;
