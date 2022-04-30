@@ -49,6 +49,7 @@ export const GET_WORKS = gql`
       id
       label
       isPublished
+      created_at
       files {
         cdnUrl
         content

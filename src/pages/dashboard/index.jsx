@@ -1,18 +1,17 @@
 import tw from "twin.macro";
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import ReactHtmlParser from "react-html-parser";
 import { BiExpand } from "react-icons/bi";
-import { AiOutlineDelete } from "react-icons/ai";
+import { AiOutlineDelete, AiOutlineDownload } from "react-icons/ai";
 import toast from "react-hot-toast";
-import { Result, Button, Popconfirm } from "antd";
+import { Result, Button, Popconfirm, Tooltip } from "antd";
+import fileDownload from "js-file-download";
+import moment from "moment";
 
 import { Loader } from "../../components";
-import useLocalStorage from "../../customHooks/useLocalStorage";
-import { getSourceDoc } from "../../utils";
 import { GET_WORKS, DELETE_WORK } from "../../graphql";
 
 export default function Dashboard() {
@@ -26,9 +25,26 @@ export default function Dashboard() {
           const html = uw.files.find((file) => file.type === "html").content;
           const css = uw.files.find((file) => file.type === "css").content;
           const js = uw.files.find((file) => file.type === "js").content;
+          const downloadContent = `<!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta http-equiv="X-UA-Compatible" content="IE=edge">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>${uw.label}</title>
+              <style>${css}</style>
+          </head>
+          <body>
+          ${html}
+          <script>${js}</script>
+          </body>
+          </html>
+          `;
+          const showContent = `<div id=${uw.label}><style>${css}</style>${html}<script>${js}</script></div>`;
           return {
             ...uw,
-            showContent: `<style>${css}</style>${html}<script>${js}</script>`,
+            showContent,
+            downloadContent,
           };
         });
         setWorks(updatedWork);
@@ -71,6 +87,11 @@ export default function Dashboard() {
       },
     });
   };
+
+  const downloadHandler = (work) => {
+    const fileName = `${work.label}.html`;
+    fileDownload(work.downloadContent, fileName);
+  };
   if (isLoadingWorks) return <Loader />;
   return (
     <Wrapper>
@@ -86,6 +107,7 @@ export default function Dashboard() {
                 work={work}
                 onClick={() => router.push(`/editor/${work.id}`)}
                 onDelete={() => deleteWorkHandler(work.id)}
+                downloadHandler={downloadHandler}
               />
             );
           })}
@@ -106,7 +128,7 @@ export default function Dashboard() {
   );
 }
 
-const Card = ({ work = null, ...props }) => (
+const Card = ({ work = null, downloadHandler = () => null, ...props }) => (
   <div tw="width[350px] height[300px] md:(width[400px] height[320px]) rounded-md background[var(--secondary-background)] overflow-hidden relative hover:(cursor-pointer)">
     <div tw="bg-white w-full h-2/3 rounded-md overflow-hidden">
       {ReactHtmlParser(work.showContent)}
@@ -114,22 +136,35 @@ const Card = ({ work = null, ...props }) => (
     <div tw="h-1/3 p-4">
       <div tw="flex justify-between items-center">
         <h2 tw="text-lg text-white">{work.label}</h2>
-        <Popconfirm
-          title="Are you sure to delete this work?"
-          onConfirm={props.onDelete}
-          // onCancel={cancel}
-          okText="Yes"
-          cancelText="No"
-        >
-          <span>
-            <AiOutlineDelete size={24} color="#fff" />
-          </span>
-        </Popconfirm>
+        <div tw="flex justify-between items-center">
+          <Tooltip
+            title="Download a .html file"
+            color="var(--tertiary-background)"
+          >
+            <span tw="mr-2" onClick={() => downloadHandler(work)}>
+              <AiOutlineDownload size={24} color="#fff" />
+            </span>
+          </Tooltip>
+          <Popconfirm
+            title="Are you sure to delete this work?"
+            onConfirm={props.onDelete}
+            // onCancel={cancel}
+            okText="Yes"
+            cancelText="No"
+          >
+            <span>
+              <AiOutlineDelete size={24} color="#fff" />
+            </span>
+          </Popconfirm>
+        </div>
       </div>
+      <h4 tw="text-sm text-white">
+        Created {moment(work.created_at).fromNow()}
+      </h4>
     </div>
     <span
       onClick={props.onClick}
-      tw="absolute top-4 right-4 p-1 hover:(border[1px solid var(--secondary-background)] rounded-md)"
+      tw="absolute top-4 right-4 p-1 bg-white rounded-md  hover:(border[1px solid var(--secondary-background)] rounded-md)"
     >
       <BiExpand size={28} />
     </span>
