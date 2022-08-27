@@ -109,7 +109,20 @@ export default NextAuth({
           query: GET_AUTH_PROVIDER_DETAILS,
           variables: {
             where: {
-              providerAccountId: { _eq: user.id },
+              _or: [
+                {
+                  providerAccountId: {
+                    _eq: user.id,
+                  },
+                },
+                {
+                  user: {
+                    email: {
+                      _eq: user.email,
+                    },
+                  },
+                },
+              ],
             },
           },
         });
@@ -153,9 +166,45 @@ export default NextAuth({
     jwt: async ({ token, user, account, profile, isNewUser }) => {
       const ifUserSignedIn = user ? true : false;
       if (ifUserSignedIn) {
-        token.id = user.id;
-        token.auth_time = Math.floor(Date.now() / 1000);
-        token.accountType = account.type;
+        // so when logged in with oauth it gives the providerAccountId as string
+        // which is not valid uuid format, thus will break lot of this since we will be
+        // setting that providerAccountId (non-uuid format) as userId in session token (incase of oauth)
+        // and will be checking this id in hasura for permission with actual userId (uuid format)
+
+        // thus needed to update the id with actual userId(uuid format) by fetchig the user
+        const {
+          data: { users_authProvider = [] },
+        } = await apolloClient.query({
+          query: GET_AUTH_PROVIDER_DETAILS,
+          variables: {
+            where: {
+              _or: [
+                {
+                  providerAccountId: {
+                    _eq: user.id,
+                  },
+                },
+                {
+                  user: {
+                    email: {
+                      _eq: user.email,
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        });
+
+        // now the data below will be passed to the first jwt function above & this time
+        // token will have id and all.
+        if (users_authProvider.length > 0) {
+          const [userAuthProvider] = users_authProvider;
+          token.id = userAuthProvider.userId;
+          token.name = userAuthProvider.user.name;
+          token.auth_time = Math.floor(Date.now() / 1000);
+          token.accountType = account.type;
+        }
       }
       return Promise.resolve(token);
     },
@@ -163,7 +212,7 @@ export default NextAuth({
       const encodedToken = sign(token, process.env.SECRET, {
         algorithm: "HS256",
       });
-      const { sub: id, accountType } = token;
+      const { sub: id, accountType, email } = token;
 
       const {
         data: { users_authProvider = [] },
@@ -175,7 +224,20 @@ export default NextAuth({
               userId: { _eq: id },
             }),
             ...(accountType === "oauth" && {
-              providerAccountId: { _eq: id },
+              _or: [
+                {
+                  providerAccountId: {
+                    _eq: id,
+                  },
+                },
+                {
+                  user: {
+                    email: {
+                      _eq: email,
+                    },
+                  },
+                },
+              ],
             }),
           },
         },
