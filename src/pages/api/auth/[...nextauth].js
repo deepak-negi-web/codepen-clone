@@ -178,20 +178,9 @@ export default NextAuth({
           query: GET_AUTH_PROVIDER_DETAILS,
           variables: {
             where: {
-              _or: [
-                {
-                  providerAccountId: {
-                    _eq: user.id,
-                  },
-                },
-                {
-                  user: {
-                    email: {
-                      _eq: user.email,
-                    },
-                  },
-                },
-              ],
+              providerAccountId: {
+                _eq: user.id,
+              },
             },
           },
         });
